@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="oe">
+	
+	<select id="OutSideList" resultType="com.company.test.vo.OutSideVo">
+        SELECT 
+			*
+		FROM j_outside_enterprise 
+		WHERE use_yn='Y'
+		<if test="oe_seq != null and oe_seq != '' ">
+		    AND oe_seq = #{oe_seq}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and  
+			oe_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		order by oe_name asc 
+		limit ${pageNo} ,${pageSize}
+		
+	 </select>
+	 
+    <select id="OutSideOne" resultType="com.company.test.vo.OutSideVo">
+        SELECT *
+        FROM j_outside_enterprise
+
+        WHERE oe_seq = #{oe_seq}
+    </select>
+    
+    <insert id="OutSideInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="oe_seq">
+    	INSERT INTO j_outside_enterprise
+(			
+			oe_type,
+			oe_name,
+			oe_items,
+			oe_address,
+			oe_tel,
+			oe_etc1,
+			oe_etc2,
+			oe_etc3,
+			oe_main,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(    		
+			#{oe_type},
+			#{oe_name},
+			#{oe_items},
+			#{oe_address},
+			#{oe_tel},
+			#{oe_etc1},
+			#{oe_etc2},
+			#{oe_etc3},
+			#{oe_main},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    <update id="OutSideUpdate" parameterType="java.util.HashMap" >
+
+		update j_outside_enterprise
+		set
+			oe_type =  #{oe_type},
+			oe_name =  #{oe_name},
+			oe_items =  #{oe_items},
+			oe_address =  #{oe_address},
+			oe_tel =  #{oe_tel},
+			oe_etc1 =  #{oe_etc1},
+			oe_etc2 =  #{oe_etc2},
+			oe_etc3 =  #{oe_etc3},
+			oe_main =  #{oe_main},
+			mod_date = now()
+			
+		where oe_seq = #{oe_seq}
+
+	</update>
+    
+    <delete id="OutSideDelete" parameterType="int">
+
+		delete from j_outside_enterprise where oe_seq=#{oe_seq}
+
+	</delete>
+	
+	<select id="OutSideCount" resultType="int" >
+        SELECT count(*)
+		FROM j_outside_enterprise 
+		WHERE use_yn='Y'
+		<if test="oe_seq != null">
+		    AND oe_seq = #{oe_seq}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and  
+			oe_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		
+	 </select>
+    
+    
+     <select id="OutSideEnterPrise" resultType="com.company.test.vo.OutSideVo">
+        SELECT 
+        	oe_seq,
+        	oe_name,
+        	oe_items
+			from 
+			j_outside_enterprise
+			where use_yn='Y'
+			and oe_items like CONCAT('%', #{pl_oe_items}, '%') 
+		
+		order by oe_name asc 
+		
+		
+	 </select>
+	 
+	 
+	 <select id="OutSideStats" resultType="com.company.test.vo.OutSideVo">
+        select 
+			B.pl_pi_seq,
+			A.oe_name as oe_name,
+			( select C.pi_joil_number from j_production_items C where C.pi_seq = B.pl_pi_seq )as pi_joil_number,
+			( select C.pi_name from j_production_items C where C.pi_seq = B.pl_pi_seq )as pi_name,
+			( select C.sc_name from j_system_code C where C.sc_seq = B.pl_sc_seq )as sc_name,	
+			( select C.sc_name from j_system_code C where C.sc_seq = B.pl_ow_group )as ow_group_name,
+			( select C.ow_name from j_outside_worklist C where C.ow_seq = B.pl_ow_group_detail )as ow_group_detail_name,
+			B.pl_price as pl_price,
+			B.pl_amount as pl_amount,
+			(B.pl_amount * B.pl_price) as pl_sum,
+			A.oe_seq as oe_seq,
+			A.oe_items,
+			B.pl_date,
+			( select C.use_yn from j_production_items C where C.pi_seq = B.pl_pi_seq )as use_yn
+			
+		from j_outside_enterprise A , j_productcost_list B
+		where A.oe_seq = B.pl_oe_seq 
+	    order by pl_pi_seq asc
+		
+	 </select>
+    
+</mapper>

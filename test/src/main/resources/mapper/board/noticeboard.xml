@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="nl">
+	    
+    <select id="NoticeBoardList" resultType="com.company.test.vo.NoticeBoardVo">
+        SELECT A.*      
+		FROM j_noticeboard_list A 
+		WHERE del_yn='N'
+		<if test="nl_seq != null and nl_seq != '' ">
+		    AND A.nl_seq = #{nl_seq}
+		</if>	
+		<if test="search_word != null and search_word != '' ">
+			and A.nl_title like CONCAT('%', #{search_word}, '%')
+		</if>
+		order by A.cre_date desc
+	 </select>
+	 
+    <select id="NoticeBoardOne" resultType="com.company.test.vo.NoticeBoardVo">
+        SELECT *
+        FROM j_noticeboard_list
+        WHERE nl_seq = #{nl_seq}
+    </select>
+    
+    <insert id="NoticeBoardInsert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="nl_seq" keyColumn="nl_seq">
+    	INSERT INTO j_noticeboard_list(
+		    nl_title,
+			nl_contents,
+			nl_writer,
+			nl_etc,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(  
+			#{nl_title},
+			#{nl_contents},
+			#{nl_writer},
+			#{nl_etc},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    	<selectKey keyProperty="nl_seq" resultType="long" order="AFTER" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+    
+    <update id="NoticeBoardUpdate" parameterType="java.util.HashMap" >
+
+		update j_noticeboard_list
+		set
+			nl_title = #{nl_title},
+			nl_contents = #{nl_contents},
+			nl_etc = #{nl_etc},			
+			mod_date = now()
+		where nl_seq = #{seq}
+
+	</update>
+    
+    <delete id="NoticeBoardDelete" parameterType="int">
+		delete from j_noticeboard_list where nl_seq=#{nl_seq}
+	</delete>
+	
+	<select id="getNoticeBoardCount" resultType="int" >
+        SELECT count(*)
+		FROM j_noticeboard_list A
+		WHERE del_yn='N'		
+	 </select>
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+</mapper>

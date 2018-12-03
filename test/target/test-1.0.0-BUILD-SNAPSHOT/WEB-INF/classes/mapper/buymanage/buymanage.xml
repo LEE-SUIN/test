@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ab">
+	    
+    <select id="BuyManageList" resultType="com.company.test.vo.BuyManageVo">
+        SELECT *
+		FROM j_accounting_buyenterprise 
+		WHERE del_yn='N'
+		<if test="abe_seq != null and abe_seq != '' ">
+		    AND abe_seq = #{abe_seq}
+		</if>	
+		<if test="use_yn != null and use_yn != '' ">
+		    AND use_yn = #{use_yn}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and abe_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		<if test="abe_group != null and abe_group != '' ">
+		    AND abe_group = #{abe_group}
+		</if>
+		 
+		
+		order by abe_name asc
+		limit ${pageNo} ,${pageSize}
+	 </select>
+	 
+    <select id="BuyManageOne" resultType="com.company.test.vo.BuyManageVo">
+        SELECT *
+        FROM j_accounting_buyenterprise
+        WHERE abe_seq = #{abe_seq}
+    </select>
+    
+    <insert id="BuyManageInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="abe_seq">
+    	INSERT INTO j_accounting_buyenterprise(
+		    abe_name, 
+			abe_owner, 
+			abe_co_number, 
+			abe_tel,
+			abe_address, 
+			abe_group,
+			abe_main,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(    		
+			#{abe_name},
+			#{abe_owner},
+			#{abe_co_number},
+			#{abe_tel},
+			#{abe_address},
+			#{abe_group},
+			#{abe_main},		
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    <update id="BuyManageUpdate" parameterType="java.util.HashMap" >
+
+		update j_accounting_buyenterprise
+		set
+			abe_name = #{abe_name}, 
+			abe_owner = #{abe_owner}, 
+			abe_co_number = #{abe_co_number}, 
+			abe_tel = #{abe_tel},
+			abe_address = #{abe_address}, 
+			abe_group = #{abe_group},
+			abe_main = #{abe_main},
+			use_yn= #{use_yn},
+			mod_date = now()
+		where abe_seq = #{abe_seq}
+
+	</update>
+    
+    <delete id="BuyManageDelete" parameterType="int">
+
+		delete from j_accounting_buyenterprise where abe_seq=#{abe_seq}
+
+	</delete>
+	
+	<select id="getBuyManageCount" resultType="int" >
+        SELECT count(*)
+		FROM j_accounting_buyenterprise
+		WHERE del_yn='N'
+		<if test="search_word != null and search_word != '' ">
+			and  
+			abe_name like CONCAT('%', #{search_word}, '%')
+		</if>
+	 </select>
+    
+</mapper>

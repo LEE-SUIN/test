@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ab">
+	    
+    <select id="BuyList" resultType="com.company.test.vo.BuyVo">
+        SELECT A.*,
+        ( select B.abe_name from j_accounting_buyenterprise B where B.abe_seq = A.ab_e_seq ) as ab_e_name,
+        ( select C.sc_name from j_accounting_buyenterprise B, j_system_code C where B.abe_seq = A.ab_e_seq and B.abe_group = C.sc_seq ) as ab_e_group_name
+        
+		FROM j_accounting_buy A 
+		WHERE del_yn='N'
+		<if test="ab_seq != null and ab_seq != '' ">
+		    AND A.ab_seq = #{ab_seq}
+		</if>	
+		<if test="search_word != null and search_word != '' ">
+			and A.ab_buy_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		
+		<if test="search_enterprise != null and search_enterprise != '' ">
+			and A.ab_e_seq = #{search_enterprise}
+		</if>
+		
+		<if test="search_group != null and search_group != '' ">
+			and	
+				( 
+					select C.sc_seq from j_accounting_buyenterprise B, j_system_code C where B.abe_seq = A.ab_e_seq and B.abe_group = C.sc_seq 
+				)	= #{search_group}
+		</if>
+		
+		<if test="search_start_date != null and search_start_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(A.ab_date, '%Y-%m-%d') >= #{search_start_date}
+			 ]]>
+		</if>
+		<if test="search_end_date != null and search_end_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(A.ab_date, '%Y-%m-%d') <= #{search_end_date}
+			]]>
+		</if>
+		
+		order by A.ab_date desc
+		limit ${pageNo} ,${pageSize}
+	 </select>
+	 
+    <select id="BuyOne" resultType="com.company.test.vo.BuyVo">
+        SELECT *
+        FROM j_accounting_buy
+        WHERE ab_seq = #{ab_seq}
+    </select>
+    
+    <insert id="BuyInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="ab_seq">
+    	INSERT INTO j_accounting_buy(
+		    ab_e_seq,
+			ab_buy_name,
+			ab_price,
+			ab_amount,
+			ab_sum,
+			ab_sum_vat,
+			ab_date,			
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(  
+			#{ab_e_seq},
+			#{ab_buy_name},
+			#{ab_price},
+			#{ab_amount},
+			#{ab_sum},
+			#{ab_sum_vat},
+			#{ab_date},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    <update id="BuyUpdate" parameterType="java.util.HashMap" >
+
+		update j_accounting_buy
+		set
+			ab_buy_name = #{ab_buy_name},
+			ab_price = #{ab_price},
+			ab_amount = #{ab_amount},
+			ab_sum = #{ab_sum},
+			ab_sum_vat = #{ab_sum_vat},
+			ab_date = #{ab_date},
+			mod_date = now()
+		where ab_seq = #{ab_seq}
+
+	</update>
+    
+    <delete id="BuyDelete" parameterType="int">
+
+		delete from j_accounting_buy where ab_seq=#{ab_seq}
+
+	</delete>
+	
+	<select id="getBuyCount" resultType="int" >
+        SELECT count(*)
+		FROM j_accounting_buy A
+		WHERE del_yn='N'
+		<if test="ab_seq != null and ab_seq != '' ">
+		    AND A.ab_seq = #{ab_seq}
+		</if>	
+		<if test="search_word != null and search_word != '' ">
+			and A.ab_buy_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		
+		<if test="search_enterprise != null and search_enterprise != '' ">
+			and A.ab_e_seq = #{search_enterprise}
+		</if>
+		
+		<if test="search_group != null and search_group != '' ">
+			and	
+				( 
+					select C.sc_seq from j_accounting_buyenterprise B, j_system_code C where B.abe_seq = A.ab_e_seq and B.abe_group = C.sc_seq 
+				)	= #{search_group}
+		</if>
+		
+		<if test="search_start_date != null and search_start_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(A.ab_date, '%Y-%m-%d') >= #{search_start_date}
+			 ]]>
+		</if>
+		<if test="search_end_date != null and search_end_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(A.ab_date, '%Y-%m-%d') <= #{search_end_date}
+			]]>
+		</if>
+	 </select>
+    
+    
+    
+    
+    
+    <select id="BuyBook" resultType="com.company.test.vo.BuyVo">
+       select 
+		B.abe_name as abe_name,
+		B.abe_main as abe_main,
+		sum(A.ab_sum)as ab_sum,
+		sum(A.ab_sum_vat) as ab_sum_vat
+		from
+		j_accounting_buy A
+		left join j_accounting_buyenterprise B
+		on A.ab_e_seq = B.abe_seq
+		where A.del_yn ='N'
+		<if test="start_date != null and start_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.ab_date,'%Y-%m-%d') >= #{start_date}
+		    ]]>
+		</if>
+		<if test="end_date != null and end_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.ab_date,'%Y-%m-%d') <= #{end_date}
+		    ]]>
+		</if>
+		<if test="abe_group != null and abe_group != '' ">
+			and B.abe_group= #{abe_group}
+		</if>
+		
+		group by A.ab_e_seq 
+		
+				
+	</select>
+    
+    <select id="getBuyRows" resultType="int" >
+        
+    	select COALESCE(MAX(C.NO),0) as row_count
+		from (		
+		select 
+		@RNUM := @RNUM + 1 AS NO,
+		B.abe_name,
+		B.abe_main,
+		sum(A.ab_sum),
+		sum(A.ab_sum_vat)
+		from
+		j_accounting_buy A
+		left join j_accounting_buyenterprise B 
+		on A.ab_e_seq = B.abe_seq
+		, ( SELECT @RNUM := 0 ) R
+		where A.del_yn ='N'
+		<if test="start_date != null and start_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.ab_date,'%Y-%m-%d') >= #{start_date}
+		    ]]>
+		</if>
+		<if test="end_date != null and end_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.ab_date,'%Y-%m-%d') <= #{end_date}
+		    ]]>
+		</if>
+		<if test="abe_group != null and abe_group != '' ">
+			and B.abe_group= #{abe_group}
+		</if>
+		group by A.ab_e_seq 
+		)C
+    	
+    </select>
+    
+    
+    
+    
+    
+    
+</mapper>

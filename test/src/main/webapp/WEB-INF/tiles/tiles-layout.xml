@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+        "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+        "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+<!-- name=네임명 지정 : 템플릿에 설정된 페이지의 구성 요소에 대한 실제 파일을 지정합니다.  -->
+
+<!-- 레이아웃 테스트 화면   -->
+<definition name="test" template="/WEB-INF/test.ftl">
+	 
+</definition>
+
+
+
+<!-- 공통 처리 화면   -->
+<definition name="action" template="/WEB-INF/action/action.ftl">
+	 
+</definition>
+
+<!-- 프린트 화면   -->
+<definition name="forPrint" template="/WEB-INF/print/print.ftl">
+	 
+</definition>
+
+<!-- 인덱스 로그인 화면   -->
+<definition name="login" template="/WEB-INF/views/login.ftl">
+	 
+</definition>
+
+<!-- 공통 레이아웃   -->
+<definition name="layout" template="/WEB-INF/views/layout/default_template.ftl">
+ <put-attribute name="header" value="/WEB-INF/views/layout/default/header.ftl" />
+ <put-attribute name="leftmenu"  value="/WEB-INF/views/layout/default/leftmenu.ftl" />
+ <!-- <put-attribute name="body"  value="/WEB-INF/views/layout/default/body.ftl" /> --> 
+ <put-attribute name="footer" value="/WEB-INF/views/layout/default/footer.ftl" />
+</definition>
+ 
+ 
+<!-- 에러 처리 화면   -->
+
+<definition name="error" extends="layout">
+	 <put-attribute name="body" value="/WEB-INF/error.ftl" />
+</definition>
+ 
+<!--  로그인 후 메인 화면 -->
+<definition name="main" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/main/main.ftl" />
+</definition>
+
+<!-- 사용자 관리  -->
+<definition name="userList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/user/userList.ftl" />
+</definition>
+<definition name="userInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/user/userInsert.ftl" />
+</definition>
+<definition name="userStats" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/user/userStats.ftl" />
+</definition>
+
+<!-- 코드 관리   -->
+<definition name="codeList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/code/codeList.ftl" />
+</definition>
+<definition name="codeInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/code/codeInsert.ftl" />
+</definition>
+
+<!-- 업체 관리   -->
+<definition name="EnterpriseList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/enterprise/enterpriseList.ftl" />
+</definition>
+<definition name="EnterpriseInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/system/enterprise/enterpriseInsert.ftl" />
+</definition>
+
+<!-- 품목 관리   -->
+<definition name="ItemList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Item/ItemList.ftl" />
+</definition>
+<definition name="ItemInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Item/ItemInsert.ftl" />
+</definition>
+<definition name="ItemStats" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Item/ItemStats.ftl" />
+</definition>
+
+
+
+<!-- 작업 관리   -->
+<definition name="WorkList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Work/WorkList.ftl" />
+</definition>
+<definition name="WorkInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Work/WorkInsert.ftl" />
+</definition>
+<definition name="WorkState" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Work/WorkState.ftl" />
+</definition>
+<definition name="WorkStats" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Work/WorkStats.ftl" />
+</definition>
+<definition name="WorkAllInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/production/Work/WorkAllInsert.ftl" />
+</definition>
+
+
+<!-- 임률 관리   -->
+<definition name="ManCostList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/cost/ManCost/ManCostList.ftl" />
+</definition>
+<definition name="ManCostInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/cost/ManCost/ManCostInsert.ftl" />
+</definition>
+
+
+<!-- 외주 가공 업체 관리   -->
+<definition name="OutSideList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/OutSide/OutSideList.ftl" />
+</definition>
+<definition name="OutSideInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/OutSide/OutSideInsert.ftl" />
+</definition>
+
+<!-- 외주 가공 품목 관리   -->
+<definition name="OutSideWorkList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/OutSide/OutSideWorkList.ftl" />
+</definition>
+<definition name="OutSideWorkInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/OutSide/OutSideWorkInsert.ftl" />
+</definition>
+<definition name="OutSideStats" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/OutSide/OutSideStats.ftl" />
+</definition>
+
+
+
+<!-- 원가 등록   -->
+<definition name="ProductCostList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/ProductCostList.ftl" />
+</definition>
+<definition name="ProductCostInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/ProductCostInsert.ftl" />
+</definition>
+
+<definition name="ProductCostBook" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/ProductCostBook.ftl" />
+</definition>
+
+<definition name="ProductCostStats" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/ProductCostStats.ftl" />
+</definition>
+
+<definition name="ProductCostChart" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/ProductCostChart.ftl" />
+</definition>
+
+<definition name="ProductCostDetail" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/ProductCostDetail.ftl" />
+</definition>
+
+<definition name="CostStandard" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/ProductCost/ProductCost/CostStandard.ftl" />
+</definition>
+
+<definition name="BuyEnterPriseList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/BuyManage/BuyEnterPriseList.ftl" />
+</definition>
+
+<definition name="BuyEnterPriseInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/BuyManage/BuyEnterPriseInsert.ftl" />
+</definition>
+
+<definition name="BuyBook" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/BuyManage/BuyBook.ftl" />
+</definition>
+
+<definition name="BuyList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/BuyManage/BuyList.ftl" />
+</definition>
+
+
+
+<!-- 재고 관리   -->
+<definition name="InventoryList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/Inventory/InventoryList.ftl" />
+</definition>
+
+
+<!-- 자료실 관리   -->
+<definition name="BoardList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/Board/BoardList.ftl" />
+</definition>
+<definition name="BoardInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/Board/BoardInsert.ftl" />
+</definition>
+
+
+<!-- 게시판 관리   -->
+<definition name="NoticeBoardList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/NoticeBoard/NoticeBoardList.ftl" />
+</definition>
+<definition name="NoticeBoardInsert" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/NoticeBoard/NoticeBoardInsert.ftl" />
+</definition>
+
+<!-- 메일발송 관리   -->
+<definition name="EmailSend" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/EmailSend/EmailSend.ftl" />
+</definition>
+<definition name="EmailSendList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/EmailSend/EmailSendList.ftl" />
+</definition>
+<definition name="EmailSendUpdate" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/EmailSend/EmailSendUpdate.ftl" />
+</definition>
+<definition name="EmailCode" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/EmailSend/EmailCode.ftl" />
+</definition>
+
+<definition name="EmailSendBonusList" extends="layout">
+  <put-attribute name="body" value="/WEB-INF/EmailSend/EmailSendBonus.ftl" />
+</definition>
+
+
+
+
+<!-- 구매/영업 화면   -->
+<definition name="forSales" template="/WEB-INF/ProductCost/forSales.ftl">
+</definition>
+<definition name="forSalesGraph" template="/WEB-INF/ProductCost/forSalesGraph.ftl">
+</definition>
+
+<!-- SQ 관련   -->
+<definition name="forSQ" template="/WEB-INF/ProductCost/forSQ.ftl">
+</definition>
+
+
+
+</tiles-definitions>

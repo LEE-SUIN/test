@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="el">
+	    
+    <select id="EmailSendList" resultType="com.company.test.vo.EmailSendVo">
+        SELECT 
+        	A.el_seq as el_seq,
+        	A.el_name_seq as el_name_seq,
+	        ( select B.su_name from j_system_user B where A.el_name_seq = B.su_seq ) as el_name,
+	        ( select C.sc_name from j_system_code C where
+	        C.sc_seq = ( select B.su_position from j_system_user B where A.el_name_seq = B.su_seq )	        
+	         ) as el_grade,
+	         ( select C.sc_name from j_system_code C where
+	        C.sc_seq = ( select B.su_depart from j_system_user B where A.el_name_seq = B.su_seq )	        
+	         ) as el_depart,
+	        A.el_email as el_email,
+	        A.el_year as el_year,
+	        A.el_department as el_department,
+	        A.el_give_1 as el_give_1,
+			A.el_give_2 as el_give_2,
+			A.el_give_3 as el_give_3,
+			A.el_give_4 as el_give_4,
+			A.el_give_5 as el_give_5,
+			A.el_give_6 as el_give_6,
+			A.el_give_7 as el_give_7,
+			A.el_give_8 as el_give_8,
+			A.el_give_9 as el_give_9,
+			A.el_give_10 as el_give_10,
+			(A.el_give_1+A.el_give_2+A.el_give_3+A.el_give_4+A.el_give_5+A.el_give_6+A.el_give_7+A.el_give_8+A.el_give_9+A.el_give_10) as el_give_sum,
+			A.el_deduct_1 as el_deduct_1,
+			A.el_deduct_2 as el_deduct_2,
+			A.el_deduct_3 as el_deduct_3,
+			A.el_deduct_4 as el_deduct_4,
+			A.el_deduct_5 as el_deduct_5,
+			A.el_deduct_6 as el_deduct_6,
+			A.el_deduct_7 as el_deduct_7,
+			A.el_deduct_8 as el_deduct_8,
+			A.el_deduct_9 as el_deduct_9,
+			(A.el_deduct_1+A.el_deduct_2+A.el_deduct_3+A.el_deduct_4+A.el_deduct_5+A.el_deduct_6+A.el_deduct_7+A.el_deduct_8+A.el_deduct_9) as el_deduct_sum  	            
+		FROM j_emailsend_list A 
+		WHERE del_yn='N'		
+		order by A.el_name desc
+	 </select>
+	 
+    <select id="EmailSendOne" resultType="com.company.test.vo.EmailSendVo">
+        SELECT 
+        	A.el_seq as el_seq,
+        	A.el_name_seq as el_name_seq,
+	        ( select B.su_name from j_system_user B where A.el_name_seq = B.su_seq ) as el_name,
+	        A.el_email as el_email,
+	        A.el_year as el_year,
+	        A.el_department as el_department,
+	        A.el_give_1 as el_give_1,
+			A.el_give_2 as el_give_2,
+			A.el_give_3 as el_give_3,
+			A.el_give_4 as el_give_4,
+			A.el_give_5 as el_give_5,
+			A.el_deduct_1 as el_deduct_1,
+			A.el_deduct_2 as el_deduct_2,
+			A.el_deduct_3 as el_deduct_3,
+			A.el_deduct_4 as el_deduct_4,
+			A.el_deduct_5 as el_deduct_5  
+        FROM j_emailsend_list A
+        WHERE el_seq = #{el_seq}
+    </select>
+    
+    <insert id="EmailSendInsert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="el_seq" keyColumn="el_seq">
+    	INSERT INTO j_emailsend_list(
+		    el_name_seq,
+			el_email,
+			el_year,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(  
+			#{el_name_seq},
+			#{el_email},
+			#{el_year},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    	<selectKey keyProperty="el_seq" resultType="long" order="AFTER" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+    
+    <update id="EmailSendUpdate" parameterType="java.util.HashMap" >
+
+		update j_emailsend_list
+		set	
+			<if test="el_email != null and el_email != '' ">
+				el_email = #{el_email},
+			</if>				
+			<if test="el_year != null and el_year != '' ">	
+			el_year = #{el_year},
+			</if>
+			<if test="el_department != null and el_department != '' ">				
+			el_department = #{el_department},	
+			</if>	
+			<if test="el_give_1 != null and el_give_1 != '' ">
+			el_give_1   = #{el_give_1},
+			</if>
+			<if test="el_give_2 != null and el_give_2 != '' ">   
+			el_give_2   = #{el_give_2},
+			</if>
+			<if test="el_give_3 != null and el_give_3 != '' ">
+			el_give_3   = #{el_give_3},
+			</if>
+			<if test="el_give_4 != null and el_give_4 != '' ">
+			el_give_4   = #{el_give_4},
+			</if>
+			<if test="el_give_5 != null and el_give_5 != '' ">
+			el_give_5   = #{el_give_5},
+			</if>
+			<if test="el_give_6 != null and el_give_6 != '' ">
+			el_give_6   = #{el_give_6},
+			</if>
+			<if test="el_give_7 != null and el_give_7 != '' ">
+			el_give_7   = #{el_give_7},
+			</if>
+			<if test="el_give_8 != null and el_give_8 != '' ">
+			el_give_8   = #{el_give_8},
+			</if>
+			<if test="el_give_9 != null and el_give_9 != '' ">
+			el_give_9   = #{el_give_9},
+			</if>
+			<if test="el_give_10 != null and el_give_10 != '' ">
+			el_give_10   = #{el_give_10},
+			</if>
+			<if test="el_deduct_1 != null and el_deduct_1 != '' ">
+			el_deduct_1 = #{el_deduct_1},
+			</if>
+			<if test="el_deduct_2 != null and el_deduct_2 != '' ">
+			el_deduct_2 = #{el_deduct_2},
+			</if>
+			<if test="el_deduct_3 != null and el_deduct_3 != '' ">
+			el_deduct_3 = #{el_deduct_3},
+			</if>
+			<if test="el_deduct_4 != null and el_deduct_4 != '' ">			
+			el_deduct_4 = #{el_deduct_4},
+			</if>
+			<if test="el_deduct_5 != null and el_deduct_5 != '' ">
+			el_deduct_5 = #{el_deduct_5},
+			</if>
+			<if test="el_deduct_6 != null and el_deduct_6 != '' ">
+			el_deduct_6 = #{el_deduct_6},
+			</if>
+			<if test="el_deduct_7 != null and el_deduct_7 != '' ">
+			el_deduct_7 = #{el_deduct_7},
+			</if>
+			<if test="el_deduct_8 != null and el_deduct_8 != '' ">
+			el_deduct_8 = #{el_deduct_8},
+			</if>
+			<if test="el_deduct_9 != null and el_deduct_9 != '' ">
+			el_deduct_9 = #{el_deduct_9},
+			</if>					
+			
+			mod_date = now()
+		where el_seq = #{el_seq}
+
+	</update>
+    
+    <delete id="EmailSendDelete" parameterType="int">
+		delete from j_emailsend_list where el_seq=#{el_seq}
+	</delete>
+	
+	<select id="getEmailSendCount" resultType="int" >
+        SELECT count(*)
+		FROM j_emailsend_list A
+		WHERE del_yn='N'		
+	 </select>
+    
+    
+    
+    <select id="EmailSendCodeList" resultType="com.company.test.vo.EmailSendVo">
+        SELECT 
+        	 *
+		FROM j_emailsend_code 
+		WHERE del_yn='N'		
+		<if test="ec_group != null and ec_group != '' ">
+				and ec_group = #{ec_group}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+			and use_yn = #{use_yn}
+		</if>
+		order by ec_seq desc
+	 </select>
+    
+    
+    <insert id="EmailSendCodeInsert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="ec_seq" keyColumn="ec_seq">
+    	INSERT INTO j_emailsend_code(
+			ec_group,
+			ec_text,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(  
+			#{ec_group},
+			#{ec_text},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    	<selectKey keyProperty="ec_seq" resultType="long" order="AFTER" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+    
+    <update id="EmailSendCodeUpdate" parameterType="java.util.HashMap" >
+		update j_emailsend_code
+		set	
+			ec_text = #{ec_text},
+			mod_date = now()
+		where ec_seq = #{ec_seq}
+	</update>
+    
+    <update id="EmailSendCodeUseUpdate" parameterType="java.util.HashMap" >
+		update j_emailsend_code
+		set	
+			use_yn = #{use_yn},
+			mod_date = now()
+		where ec_seq = #{ec_seq}
+
+	</update>
+    
+    <delete id="EmailSendCodeDelete" parameterType="int">
+		delete from j_emailsend_code where ec_seq=#{ec_seq}
+	</delete>
+      
+    <update id="EmailSendBonusUpdate" parameterType="java.util.HashMap" >
+		update j_emailsend_list
+		set	
+			el_bonus = #{el_bonus},
+			el_bonus_1 = #{el_bonus_1},
+			el_bonus_2 = #{el_bonus_2},
+			el_bonus_percent = #{el_bonus_percent},
+			mod_date = now()
+		where el_seq = #{el_seq}
+	</update>
+    
+    <select id="EmailSendBonusList" resultType="com.company.test.vo.EmailSendVo">
+        SELECT 
+        	 A.el_seq as el_seq,
+        	A.el_name_seq as el_name_seq,
+	        ( select B.su_name from j_system_user B where A.el_name_seq = B.su_seq ) as el_name,
+	        ( select C.sc_name from j_system_code C where
+	        C.sc_seq = ( select B.su_position from j_system_user B where A.el_name_seq = B.su_seq )	        
+	         ) as el_grade,
+	         ( select C.sc_name from j_system_code C where
+	        C.sc_seq = ( select B.su_depart from j_system_user B where A.el_name_seq = B.su_seq )	        
+	         ) as el_depart,
+	         A.el_email as el_email,
+	         A.el_bonus as el_bonus,
+	         A.el_bonus_1 as el_bonus_1,
+	         A.el_bonus_2 as el_bonus_2,
+	         A.el_bonus_percent as el_bonus_percent,	         
+	         A.el_department as el_department
+		FROM j_emailsend_list A
+		WHERE del_yn='N'		
+		<if test="ec_group != null and ec_group != '' ">
+				and ec_group = #{ec_group}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+			and use_yn = #{use_yn}
+		</if>
+		order by el_seq desc
+	 </select>
+    
+    
+</mapper>

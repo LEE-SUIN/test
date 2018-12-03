@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pw">
+	
+    
+    <select id="WorkList" resultType="com.company.test.vo.WorkVo">
+        select
+	        A.*,
+	        ( select B.sc_name
+	         from j_system_code B,j_system_user C where C.su_seq = A.pw_su_seq and C.su_position = B.sc_seq ) as su_position,
+        	( select B.su_name from j_system_user B where B.su_seq = A.pw_su_seq ) as su_name,
+        	 ( select B.sc_name
+	         from j_system_code B where B.sc_seq = A.pw_pi_job ) as su_job,
+	         ( select B.sc_name
+	         from j_system_code B where B.sc_seq = A.pw_select_work ) as pw_work,
+	         ( select B.pi_joil_number
+	         from j_production_items B where B.pi_seq = A.pw_pi_seq ) as joil_number,
+	         ( select B.pi_e_number
+	         from j_production_items B where B.pi_seq = A.pw_pi_seq ) as e_number
+	         
+        		
+		from j_production_work A join j_system_user D
+ 		on A.pw_su_seq = D.su_seq 
+		WHERE D.del_yn='N'
+		<if test="search_word != null and search_word != '' ">
+		    AND 
+		    ( 
+			D.su_name like CONCAT('%', #{search_word}, '%')
+		    OR ( select B.pi_joil_number	        
+					from j_production_items B
+					where B.pi_seq = A.pw_pi_seq ) like CONCAT('%', #{search_word}, '%')
+			OR ( select B.sc_name
+	         from j_system_code B where B.sc_seq = A.pw_pi_job ) like CONCAT('%', #{search_word}, '%')
+	        OR ( select B.pi_e_number
+	         from j_production_items B where B.pi_seq = A.pw_pi_seq ) like CONCAT('%', #{search_word}, '%')
+	         OR ( select B.sc_name
+	         from j_system_code B where B.sc_seq = A.pw_select_work ) like CONCAT('%', #{search_word}, '%')
+	         
+	         
+			) 
+		</if>
+		<if test="search_date != null and search_date != '' ">
+		    AND DATE_FORMAT(A.pw_work_date,'%Y-%m-%d') = #{search_date}
+		</if>
+		order by A.pw_work_date desc
+		limit ${pageNo} ,${pageSize}
+	 </select>
+	 
+    <select id="WorkOne" resultType="com.company.test.vo.WorkVo">
+        SELECT *
+        FROM j_production_work
+        WHERE pw_seq = #{pw_seq}
+    </select>
+    
+    <insert id="WorkInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="pw_seq">
+    	INSERT INTO j_production_work(
+			pw_su_seq,
+			pw_su_job,
+			pw_se_seq,
+			pw_se_group,
+			pw_se_group_temp,
+			pw_select_work,
+			pw_pi_seq,
+			pw_pi_job,
+			pw_pi_job_time,
+			pw_work_date,
+			pw_etc1,
+			pw_etc2,
+			pw_etc3,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn			
+    	) values(    		
+			#{pw_su_seq},
+			#{pw_su_job},
+			#{pw_se_seq},
+			#{pw_se_group},
+			#{pw_se_group_temp},
+			#{pw_select_work},
+			#{pw_pi_seq},
+			#{pw_pi_job},
+			#{pw_pi_job_time},
+			#{pw_work_date},
+			#{pw_etc1},
+			#{pw_etc2},
+			#{pw_etc3},		
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    <update id="WorkUpdate" parameterType="java.util.HashMap" >
+
+		update j_production_work
+		set
+			pw_su_seq  = #{pw_su_seq} ,
+			pw_su_job = #{pw_su_job} ,
+			pw_se_seq = #{pw_se_seq} ,
+			pw_se_group = #{pw_se_group} ,
+			pw_se_group_temp = #{pw_se_group_temp} ,
+			pw_select_work = #{pw_select_work} ,
+			pw_pi_seq = #{pw_pi_seq} ,
+			pw_pi_job = #{pw_pi_job} ,
+			pw_pi_job_time = #{pw_pi_job_time} ,
+			pw_work_date = #{pw_work_date} ,
+			pw_etc1 = #{pw_etc1} ,
+			pw_etc2 = #{pw_etc2} ,
+			pw_etc3 = #{pw_etc3} ,				
+			mod_date = now()
+		where pw_seq = #{pw_seq}
+
+	</update>
+    
+    <delete id="WorkDelete" parameterType="int">
+		delete from j_production_work where pw_seq=#{pw_seq}
+	</delete>
+	
+	<select id="getWorkCount" resultType="int" >
+        SELECT count(*)
+		FROM j_production_work A join j_system_user D
+ 		on A.pw_su_seq = D.su_seq 
+		WHERE D.del_yn='N'
+		<if test="pw_e_seq != null and pw_e_seq != '' ">
+		    AND pw_e_seq = #{pw_e_seq}
+		</if>
+		<if test="pw_group_temp != null and pw_group_temp != '' ">
+		    AND pw_group_temp = #{pw_group_temp}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+		    AND 
+		    ( 
+			D.su_name like CONCAT('%', #{search_word}, '%')
+		    OR ( select B.pi_joil_number	        
+					from j_production_items B
+					where B.pi_seq = A.pw_pi_seq ) like CONCAT('%', #{search_word}, '%')
+			OR ( select B.sc_name
+	         from j_system_code B where B.sc_seq = A.pw_pi_job ) like CONCAT('%', #{search_word}, '%')
+	        OR ( select B.pi_e_number
+	         from j_production_items B where B.pi_seq = A.pw_pi_seq ) like CONCAT('%', #{search_word}, '%')
+	         OR ( select B.sc_name
+	         from j_system_code B where B.sc_seq = A.pw_select_work ) like CONCAT('%', #{search_word}, '%')
+			) 
+		</if>
+		<if test="search_date != null and search_date != '' ">
+		    AND DATE_FORMAT(A.pw_work_date,'%Y-%m-%d') = #{search_date}
+		</if>
+	 </select>
+    
+     
+     
+     <select id="WorkState" resultType="com.company.test.vo.WorkVo">
+        select 
+			pw_seq,
+			pw_su_seq,
+			pw_su_job,
+			pw_se_seq,
+			pw_se_group,
+			pw_se_group_temp,
+			pw_select_work,
+			pw_pi_seq,
+			pw_pi_job,
+			sum(pw_pi_job_time) as pw_pi_job_time
+		from j_production_work
+		where 1=1 
+		
+		<if test="start_date != null and start_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(pw_work_date, '%Y-%m-%d') >= #{start_date}
+			 ]]>
+		</if>
+		<if test="end_date != null and end_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(pw_work_date, '%Y-%m-%d') <= #{end_date}
+			]]>
+		</if>
+		
+		group by pw_pi_seq,pw_pi_job
+ 			
+ 			
+	 </select>
+	 
+	 <select id="WorkStats" resultType="com.company.test.vo.WorkVo">
+        
+			select 
+				B.pw_seq,
+				A.se_name,
+				A.se_code,
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='37'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_37 ,
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='27'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_27 ,
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='28'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_28 , 
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='30'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_30  ,
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='31'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_31 ,
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='34'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_34 ,
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='35'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_35 , 
+				COALESCE((
+					select sum(pw_pi_job_time) from j_production_work C, j_production_items D where C.pw_se_seq = B.pw_se_seq
+					and C.pw_pi_seq = D.pi_seq and D.use_yn ='Y'
+					and C.pw_pi_job='42'
+					<if test="start_date != null and end_date != ''">
+					and DATE_FORMAT(C.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+					</if>
+				)
+				, 0) as sum_42
+				 from
+				j_system_enterprise A left join j_production_work B
+				on A.se_seq = B.pw_se_seq
+				<if test="start_date != null and end_date != ''">
+					where DATE_FORMAT(B.pw_work_date, '%Y-%m-%d') BETWEEN #{start_date} AND #{end_date}
+				</if>
+				group by A.se_seq
+ 			
+	 </select>
+    
+    
+</mapper>

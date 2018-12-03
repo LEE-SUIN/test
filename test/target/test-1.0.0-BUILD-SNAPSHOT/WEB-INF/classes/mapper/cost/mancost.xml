@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="mc">
+	
+	<select id="ManCostOne" resultType="com.company.test.vo.ManCostVo">
+        SELECT *
+        FROM j_cost_mancost
+    </select>
+    
+    <update id="ManCostUpdate" parameterType="java.util.HashMap" >
+
+		update j_cost_mancost
+		set			
+			mc_cost_37= #{mc_cost_37},
+			mc_cost_27= #{mc_cost_27},
+			mc_cost_28= #{mc_cost_28},
+			mc_cost_31= #{mc_cost_31},
+			mc_cost_30= #{mc_cost_30}, 
+			mc_cost_35= #{mc_cost_35}, 
+			mc_cost_34= #{mc_cost_34}, 
+			mc_cost_42= #{mc_cost_42}
+
+	</update>
+    
+    
+</mapper>

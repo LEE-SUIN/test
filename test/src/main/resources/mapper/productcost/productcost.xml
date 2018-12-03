@@ -1,0 +1,500 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pl">
+	
+	<select id="ProductCostList" resultType="com.company.test.vo.ProductCostVo">
+        SELECT 
+        A.pl_seq as pl_seq,
+        A.pl_se_seq as pl_se_seq,
+		A.pl_pi_seq as pl_pi_seq,
+		A.pl_sc_seq as pl_sc_seq,
+		A.pl_ow_group as pl_ow_group,
+		A.pl_ow_group_detail as pl_ow_group_detail,
+		A.pl_oe_seq as pl_oe_seq,
+        ( select B.se_name  from j_system_enterprise B where B.se_seq = A.pl_se_seq )as se_name,
+		( select B.sc_name from j_system_code B where B.sc_seq = A.pl_sc_seq )as sc_name,
+		( select B.pi_joil_number from j_production_items B where B.pi_seq = A.pl_pi_seq )as pi_joil_number,
+		( select B.pi_name from j_production_items B where B.pi_seq = A.pl_pi_seq )as pi_name,
+		( select B.sc_name from j_system_code B where B.sc_seq = A.pl_ow_group )as ow_group_name,
+		( select B.ow_name from j_outside_worklist B where B.ow_seq = A.pl_ow_group_detail )as ow_group_detail_name,
+		( select B.oe_name from j_outside_enterprise B where B.oe_seq = A.pl_oe_seq )as oe_name,
+		A.pl_price as pl_price,
+		A.pl_amount as pl_amount,
+		A.pl_date as pl_date,
+		A.pl_etc1 as pl_etc1,
+		A.pl_etc2 as pl_etc2,
+		A.pl_etc3 as pl_etc3
+			
+			
+		FROM j_productcost_list A join j_production_items D
+ 		on A.pl_pi_seq = D.pi_seq 
+		WHERE D.del_yn='N'
+		<if test="pl_seq != null and pl_seq != '' ">
+		    AND pl_seq = #{pl_seq}
+		</if>
+		<if test="process_group != null and process_group != '' ">
+		    AND pl_sc_seq = #{process_group}
+		</if>
+		<if test="ow_group != null and ow_group != '' ">
+		    AND pl_ow_group = #{ow_group}
+		</if>
+		<if test="ow_group_detail != null and ow_group_detail != '' ">
+		    AND pl_ow_group_detail like CONCAT('%', #{ow_group_detail}, '%')
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and
+			(
+				D.pi_joil_number like CONCAT('%', #{search_word}, '%')
+				OR(
+					select B.oe_name from
+				j_outside_enterprise B where B.oe_seq = A.pl_oe_seq
+				) like CONCAT('%', #{search_word}, '%')
+				OR A.pl_etc1 like CONCAT('%', #{search_word}, '%')
+				OR A.pl_etc2 like CONCAT('%', #{search_word}, '%')
+				OR A.pl_etc3 like CONCAT('%', #{search_word}, '%')
+				
+			)
+			 
+		</if>
+		<if test="search_date != null and search_date != '' ">
+		    AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') = #{search_date}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+		    AND A.use_yn = #{use_yn}
+	 	</if>
+		order by pl_date DESC 
+		limit ${pageNo} ,${pageSize}
+		
+	 </select>
+	 
+    <select id="ProductCostOne" resultType="com.company.test.vo.ProductCostVo">
+        SELECT *
+        FROM j_productcost_list
+
+        WHERE pl_seq = #{pl_seq}
+    </select>
+    
+    <insert id="ProductCostInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="pl_seq">
+    	INSERT INTO j_productcost_list
+(			
+			pl_se_seq,
+			pl_pi_seq,
+			pl_sc_seq,
+			pl_ow_group,
+			pl_ow_group_detail,
+			pl_oe_seq,
+			pl_date,
+			pl_price,
+			pl_amount,
+			pl_etc1,
+			pl_etc2,
+			pl_etc3,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(    		
+			#{pl_se_seq},
+			#{pl_pi_seq},
+			#{pl_sc_seq},
+			#{pl_ow_group},
+			#{pl_ow_group_detail},
+			#{pl_oe_seq},
+			#{pl_date},
+			#{pl_price},
+			#{pl_amount},			
+			#{pl_etc1},
+			#{pl_etc2},
+			#{pl_etc3},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    <update id="ProductCostUpdate" parameterType="java.util.HashMap" >
+
+		update j_productcost_list
+		set
+			pl_se_seq =  #{pl_se_seq},
+			pl_pi_seq =  #{pl_pi_seq},
+			pl_sc_seq =  #{pl_sc_seq},
+			pl_ow_group =  #{pl_ow_group},
+			pl_ow_group_detail =  #{pl_ow_group_detail},
+			pl_oe_seq =  #{pl_oe_seq},
+			pl_date =  #{pl_date},
+			pl_price =  #{pl_price},
+			pl_amount =  #{pl_amount},
+			pl_etc1 =  #{pl_etc1},
+			pl_etc2 =  #{pl_etc2},
+			pl_etc3 =  #{pl_etc3},
+			mod_date = now()
+			
+		where pl_seq = #{pl_seq}
+
+	</update>
+    
+    <delete id="ProductCostDelete" parameterType="int">
+
+		delete from j_productcost_list where pl_seq=#{pl_seq}
+
+	</delete>
+	
+	<select id="ProductCostCount" resultType="int" >
+        SELECT count(*)
+		FROM j_productcost_list A join j_production_items D
+ 		on A.pl_pi_seq = D.pi_seq 
+		WHERE D.del_yn='N'
+		<if test="pl_seq != null">
+		    AND A.pl_seq = #{pl_seq}
+		</if>
+		<if test="process_group != null and process_group != '' ">
+		    AND A.pl_sc_seq = #{process_group}
+		</if>
+		<if test="ow_group != null and ow_group != '' ">
+		    AND A.pl_ow_group = #{ow_group}
+		</if>
+		<if test="ow_group_detail != null and ow_group_detail != '' ">
+		    AND A.pl_ow_group_detail like CONCAT('%', #{ow_group_detail}, '%')
+		</if>		
+		<if test="search_word != null and search_word != '' ">
+			and
+			(
+				D.pi_joil_number like CONCAT('%', #{search_word}, '%')
+				OR(
+					select B.oe_name from
+				j_outside_enterprise B where B.oe_seq = A.pl_oe_seq
+				) like CONCAT('%', #{search_word}, '%')
+			)
+			 
+		</if>
+		<if test="search_date != null and search_date != ''">
+			and DATE_FORMAT(A.pl_date, '%Y-%m-%d') = #{search_date}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+		    AND A.use_yn = #{use_yn}
+	 	</if>
+	 </select>
+    
+    
+    
+    <select id="ProductCostBook" resultType="com.company.test.vo.ProductCostVo">
+        SELECT 	
+        
+        	A.pi_seq,
+	        A.pi_e_seq,
+	        A.pi_group,
+	        A.pi_group_temp,
+	        A.pi_e_code,	        
+	        A.pi_joil_number,
+	        A.pi_e_number,
+	        A.pi_name,
+	        A.pi_whole_number,
+	        A.pi_dis_price,
+	        A.pi_ma_price,
+	        A.pi_order_price,
+	        A.pi_etc1,
+	        A.pi_etc2,
+	        A.pi_etc3,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='67') as outside_67,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='68') as outside_68,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='69') as outside_69,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='70') as outside_70,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='71') as outside_71,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='72') as outside_72,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='73') as outside_73,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='74') as outside_74,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='75') as outside_75,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='76') as outside_76,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='77') as outside_77,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='78') as outside_78,
+	        ( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='85') as outside_85,
+	        
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_37 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='37') as inside_37,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_27 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='27') as inside_27,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_28 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='28') as inside_28,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_30 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='30') as inside_30,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_31 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='31') as inside_31,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_34 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='34') as inside_34,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_35 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='35') as inside_35,
+	        ( select  sum(B.pw_pi_job_time) * ( select mc_cost_42 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='42') as inside_42,
+	        (
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='67'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='68'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='69'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='70'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='71'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='72'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='73'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='74'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='75'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='76'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='77'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='78'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='85'),0)  
+			)
+			as outside_total,
+			(
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_37 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='37'),0) + 
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_27 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='27'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_28 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='28'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_30 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='30'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_31 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='31'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_34 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='34'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_35 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='35'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_42 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='42'),0)
+			)
+			as inside_total,
+			(	
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='69'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='70'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='71'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='72'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='73'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='74'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='75'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='76'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='77'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='78'),0)  +
+				COALESCE(( select  sum(B.pl_price * B.pl_amount) from j_productcost_list B where B.pl_pi_seq=A.pi_seq and B.pl_sc_seq='85'),0)  
+			)as outside_sum,
+			(
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_37 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='37'),0) + 
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_27 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='27'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_28 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='28'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_30 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='30'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_31 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='31'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_34 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='34'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_35 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='35'),0) +
+				COALESCE(( select  sum(B.pw_pi_job_time) * ( select mc_cost_42 from j_cost_mancost  ) from j_production_work B where B.pw_pi_seq=A.pi_seq and B.pw_pi_job='42'),0)
+			)as inside_sum
+	        , 
+	        A.pi_67_plan,
+			A.pi_67_real,
+			A.pi_68_plan,
+			A.pi_68_real,
+			A.pi_69_plan,
+			A.pi_69_real,
+			A.pi_70_plan,
+			A.pi_70_real,
+			A.pi_71_plan,
+			A.pi_71_real,
+			A.pi_72_plan,
+			A.pi_72_real,
+			A.pi_73_plan,
+			A.pi_73_real,
+			A.pi_74_plan,
+			A.pi_74_real,
+			A.pi_75_plan,
+			A.pi_75_real,
+			A.pi_76_plan,
+			A.pi_76_real,
+			A.pi_77_plan,
+			A.pi_77_real,
+			A.pi_78_plan,
+			A.pi_78_real,
+			A.pi_67_company,
+			A.pi_68_company,
+			A.pi_69_company,
+			A.pi_70_company,
+			A.pi_71_company,
+			A.pi_72_company,
+			A.pi_73_company,
+			A.pi_74_company,
+			A.pi_75_company,
+			A.pi_76_company,
+			A.pi_77_company,
+			A.pi_78_company
+	        
+	        
+		
+
+		FROM j_production_items A  
+		WHERE A.del_yn='N' 
+		<!-- <if test="start_date != null and start_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') >= #{start_date}
+		    ]]>
+		</if>
+		<if test="end_date != null and end_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') <= #{end_date}
+		    ]]>
+		</if> -->
+		
+		<if test="pi_seq != null and pi_seq != '' ">
+		    AND A.pi_seq = #{pi_seq}
+	 	</if>
+		
+		<if test="pi_e_seq != null and pi_e_seq != '' ">
+		    AND A.pi_e_seq = #{enterprise}
+	 	</if>
+	 	
+	 	<if test="pi_e_code != null and pi_e_code != '' ">
+		    AND A.pi_e_code = #{pi_e_code}
+	 	</if>
+	 	
+	 	
+	 	<if test="use_yn != null and use_yn != '' ">
+		    AND A.use_yn = #{use_yn}
+	 	</if>
+	 	
+		order by A.pi_whole_number asc
+		
+		
+	 </select>
+    
+    
+     <select id="ProductBuyBook" resultType="com.company.test.vo.ProductCostVo">
+        select
+        
+		(select B.oe_name from j_outside_enterprise B where B.oe_seq = A.pl_oe_seq )as oe_name ,
+		(select B.sc_name from j_system_code B where B.sc_seq = A.pl_sc_seq )as sc_name,
+		sum(A.pl_price *  A.pl_amount )as sum,
+		floor(sum(A.pl_price *  A.pl_amount * 1.1 ))as sum_vat
+		from j_productcost_list A
+		where del_yn='N'
+		<if test="start_date != null and start_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') >= #{start_date}
+		    ]]>
+		</if>
+		<if test="end_date != null and end_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') <= #{end_date}
+		    ]]>
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+		    AND A.use_yn = #{use_yn}
+	 	</if>
+		<if test="pl_sc_seq != null and pl_sc_seq != '' ">
+		    AND A.pl_sc_seq IN 
+			<foreach collection="pl_sc_seq" item="a"  open="(" close=")" separator=",">
+				    #{a}
+			</foreach>
+	 	</if>
+		
+		group by A.pl_sc_seq,A.pl_oe_seq;
+				
+	</select>
+    
+    <select id="getProductRows" resultType="int" >
+        select COALESCE(MAX(C.NO),0) as row_count
+        from(
+        	select
+        		@RNUM := @RNUM + 1 AS NO,
+		(select B.oe_name from j_outside_enterprise B where B.oe_seq = A.pl_oe_seq )as oe_name ,
+		(select B.sc_name from j_system_code B where B.sc_seq = A.pl_sc_seq )as sc_name,
+		sum(A.pl_price *  A.pl_amount )as sum,
+		floor(sum(A.pl_price *  A.pl_amount * 1.1 ))as sum_vat
+		from j_productcost_list A,  ( SELECT @RNUM := 0 ) b
+		where del_yn='N'
+		<if test="start_date != null and start_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') >= #{start_date}
+		    ]]>
+		</if>
+		<if test="end_date != null and end_date != '' ">
+			<![CDATA[
+		    	AND DATE_FORMAT(A.pl_date,'%Y-%m-%d') <= #{end_date}
+		    ]]>
+		</if>
+		
+		<if test="pl_sc_seq != null and pl_sc_seq != '' ">
+		    AND A.pl_sc_seq IN 
+			<foreach collection="pl_sc_seq" item="a"  open="(" close=")" separator=",">
+				    #{a}
+			</foreach>
+	 	</if>
+		<if test="use_yn != null and use_yn != '' ">
+		    AND A.use_yn = #{use_yn}
+	 	</if>
+		group by A.pl_sc_seq,A.pl_oe_seq
+       )C
+		
+		
+    	
+    	
+    	
+    </select>
+    
+      <update id="ForSalesUpdate" parameterType="java.util.HashMap" >
+
+		update j_production_items
+		set
+		    <if test="pi_67_plan != null and pi_67_plan != '' ">pi_67_plan=#{pi_67_plan},</if>
+			<if test="pi_67_real != null and pi_67_real != '' ">pi_67_real=#{pi_67_real},</if>
+			<if test="pi_68_plan != null and pi_68_plan != '' ">pi_68_plan=#{pi_68_plan},</if>
+			<if test="pi_68_real != null and pi_68_real != '' ">pi_68_real=#{pi_68_real},</if>
+			<if test="pi_69_plan != null and pi_69_plan != '' ">pi_69_plan=#{pi_69_plan},</if>
+			<if test="pi_69_real != null and pi_69_real != '' ">pi_69_real=#{pi_69_real},</if>
+			<if test="pi_70_plan != null and pi_70_plan != '' ">pi_70_plan=#{pi_70_plan},</if>
+			<if test="pi_70_real != null and pi_70_real != '' ">pi_70_real=#{pi_70_real},</if>
+			<if test="pi_71_plan != null and pi_71_plan != '' ">pi_71_plan=#{pi_71_plan},</if>
+			<if test="pi_71_real != null and pi_71_real != '' ">pi_71_real=#{pi_71_real},</if>
+			<if test="pi_72_plan != null and pi_72_plan != '' ">pi_72_plan=#{pi_72_plan},</if>
+			<if test="pi_72_real != null and pi_72_real != '' ">pi_72_real=#{pi_72_real},</if>
+			<if test="pi_73_plan != null and pi_73_plan != '' ">pi_73_plan=#{pi_73_plan},</if>
+			<if test="pi_73_real != null and pi_73_real != '' ">pi_73_real=#{pi_73_real},</if>
+			<if test="pi_74_plan != null and pi_74_plan != '' ">pi_74_plan=#{pi_74_plan},</if>
+			<if test="pi_74_real != null and pi_74_real != '' ">pi_74_real=#{pi_74_real},</if>
+			<if test="pi_75_plan != null and pi_75_plan != '' ">pi_75_plan=#{pi_75_plan},</if>
+			<if test="pi_75_real != null and pi_75_real != '' ">pi_75_real=#{pi_75_real},</if>
+			<if test="pi_76_plan != null and pi_76_plan != '' ">pi_76_plan=#{pi_76_plan},</if>
+			<if test="pi_76_real != null and pi_76_real != '' ">pi_76_real=#{pi_76_real},</if>
+			<if test="pi_77_plan != null and pi_77_plan != '' ">pi_77_plan=#{pi_77_plan},</if>
+			<if test="pi_77_real != null and pi_77_real != '' ">pi_77_real=#{pi_77_real},</if>
+			<if test="pi_78_plan != null and pi_78_plan != '' ">pi_78_plan=#{pi_78_plan},</if>
+			<if test="pi_78_real != null and pi_78_real != '' ">pi_78_real=#{pi_78_real},</if>
+			pi_67_company=#{pi_67_company},
+			pi_68_company=#{pi_68_company},
+			pi_69_company=#{pi_69_company},
+			pi_70_company=#{pi_70_company},
+			pi_71_company=#{pi_71_company},
+			pi_72_company=#{pi_72_company},
+			pi_73_company=#{pi_73_company},
+			pi_74_company=#{pi_74_company},
+			pi_75_company=#{pi_75_company},
+			pi_76_company=#{pi_76_company},
+			pi_77_company=#{pi_77_company},
+			pi_78_company=#{pi_78_company},
+			mod_date = now()
+			
+		where pi_seq = #{pi_seq}
+
+	</update>
+    
+    
+    
+    <select id="forSalesDetailPopup" resultType="com.company.test.vo.ProductCostVo">
+        select
+        
+		(select B.oe_name from j_outside_enterprise B where B.oe_seq = A.pl_oe_seq )as oe_name ,
+		(select B.sc_name from j_system_code B where B.sc_seq = A.pl_sc_seq )as sc_name,
+		A.pl_price as pl_price,
+		A.pl_date as pl_date,
+		DATE_FORMAT(A.pl_date, '%Y-%m-%d') as tmp_string,
+		A.pl_etc1 as pl_etc1,
+		A.pl_etc2 as pl_etc2,
+		A.pl_etc3 as pl_etc3
+		from j_productcost_list A
+		where del_yn='N'		 
+		<if test="use_yn != null and use_yn != '' "> 
+		    AND A.use_yn = #{use_yn}
+	 	</if>
+	 	<if test="pl_pi_seq != null and pl_pi_seq != '' ">
+		    AND A.pl_pi_seq = #{pl_pi_seq}
+	 	</if>
+		<if test="pl_sc_seq != null and pl_sc_seq != '' ">
+		    AND A.pl_sc_seq = #{pl_sc_seq}
+	 	</if>
+		order by A.pl_date desc
+				
+	</select>
+    
+    
+</mapper>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="util">
+	
+    <select id="FileList" resultType="com.company.test.vo.UtilVo">
+        SELECT *
+        FROM j_file
+        WHERE del_yn='N'
+        <if test="f_seq != null and f_seq !='' ">
+		    AND f_seq = #{f_seq}
+		</if>
+		<if test="f_data_seq != null and f_data_seq !='' ">
+		    AND f_data_seq = #{f_data_seq}
+		</if>
+		<if test="f_menu_name != null and f_menu_name !='' ">
+		    AND f_menu_name = #{f_menu_name}
+		</if>
+		
+	 </select>
+	  
+        
+     <insert id="FileInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="f_seq">
+	    	INSERT INTO j_file(
+					f_menu,
+					f_menu_detail,
+					f_menu_name,
+					f_data_seq,
+					f_ori_name,
+					f_save_name,
+					f_save_path,
+					f_file_ext,
+					f_file_size,
+					f_etc1,
+					use_yn,
+					cre_date,
+					mod_date,
+					del_date,
+					del_yn												
+	    	) values(
+	    			#{f_menu},
+					#{f_menu_detail},
+					#{f_menu_name},
+					#{f_data_seq},
+					#{f_ori_name}, 
+					#{f_save_name},
+					#{f_save_path},
+					#{f_file_ext},
+					#{f_file_size},
+					#{f_etc1},
+					'Y',
+					now(),
+					now(),
+					now(),
+					'N'	
+	    	);
+	    </insert>  
+    
+    <update id="FileUpdate" parameterType="java.util.HashMap" >
+
+		update j_file
+		set
+		f_data_seq			= #{f_data_seq},
+		mod_date		= now()
+		
+		where del_yn = 'N'
+		<if test="f_menu_name != null and f_menu_name != '' " >
+		    AND f_menu_name = #{f_menu_name}
+		</if>
+		
+		<choose>		
+		    <when test=" check = '1' ">
+		    	AND f_data_seq = '0'
+		    </when>
+		     
+		    <otherwise>
+		    	AND f_data_seq = #{f_data_seq}
+		    </otherwise>
+	  	</choose>
+		
+
+	</update>
+    
+         
+    <delete id="FileDelete" parameterType="java.util.HashMap">
+		delete from j_file where f_seq =   #{f_seq}
+	</delete>
+	
+    
+</mapper>

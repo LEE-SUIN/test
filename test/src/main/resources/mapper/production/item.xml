@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="pi">
+	
+    
+    <select id="ItemList" resultType="com.company.test.vo.ItemVo">
+        SELECT A.*
+		,( select se_name from j_system_enterprise B where A.pi_e_seq = B.se_seq ) as pi_e_name
+		FROM j_production_items A
+		WHERE del_yn='N'
+		<if test="pi_e_seq != null and pi_e_seq != '' ">
+		    AND pi_e_seq = #{pi_e_seq}
+		</if>
+		<if test="pi_group != null and pi_group != ''">
+		    AND pi_group = #{pi_group}
+		</if>
+		<if test="pi_group_temp != null and pi_group_temp != ''">
+		    AND pi_group_temp = #{pi_group_temp}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+		    AND use_yn = #{use_yn}
+		</if>		
+		<if test="search_word != null and search_word != '' ">
+			and  
+			pi_joil_number like CONCAT('%', #{search_word}, '%')
+		</if>
+		order by pi_whole_number asc
+		limit ${pageNo} ,${pageSize}
+	 </select>
+	 
+    <select id="ItemOne" resultType="com.company.test.vo.ItemVo">
+        SELECT *
+        FROM j_production_items
+        WHERE pi_seq = #{pi_seq}
+    </select>
+    
+    <insert id="ItemInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="pi_seq" keyColumn="pi_seq">
+    	INSERT INTO j_production_items(
+			pi_e_seq,
+			pi_group,
+			pi_group_temp,
+			pi_e_code,
+			pi_process,
+			pi_joil_number,
+			pi_e_number,
+			pi_name,
+			pi_dis_price,
+			pi_ma_price,
+			pi_order_price,
+			pi_order_date,
+			pi_progress,
+			pi_percent,
+			pi_progress_money,
+			pi_man,
+			pi_etc1,
+			pi_etc2,
+			pi_etc3,
+			pi_whole_number,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(    		
+			#{pi_e_seq},
+			#{pi_group},
+			#{pi_group_temp},
+			#{pi_e_code},
+			#{pi_process},	
+			#{pi_joil_number},
+			#{pi_e_number},
+			#{pi_name},
+			#{pi_dis_price},
+			#{pi_ma_price},
+			#{pi_order_price},
+			#{pi_order_date},
+			#{pi_progress},
+			#{pi_percent},
+			#{pi_progress_money},
+			#{pi_man},
+			#{pi_etc1},
+			#{pi_etc2},
+			#{pi_etc3},
+			#{pi_whole_number},			
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    	<selectKey keyProperty="pi_seq" resultType="long" order="AFTER" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+    
+    <update id="ItemUpdate" parameterType="java.util.HashMap" >
+
+		update j_production_items
+		set
+			pi_e_seq = #{pi_e_seq},
+			pi_group = #{pi_group},
+			pi_group_temp = #{pi_group_temp},
+			pi_e_code = #{pi_e_code},
+			pi_process = #{pi_process},
+			pi_joil_number = #{pi_joil_number},
+			pi_e_number = #{pi_e_number},
+			pi_name = #{pi_name},
+			pi_dis_price = #{pi_dis_price},
+			pi_ma_price = #{pi_ma_price},
+			pi_order_price = #{pi_order_price},
+			pi_order_date = #{pi_order_date},
+			pi_progress = #{pi_progress},
+			pi_percent = #{pi_percent},
+			pi_progress_money = #{pi_progress_money},
+			pi_man = #{pi_man},
+			pi_whole_number = #{pi_whole_number},		
+			pi_etc1 = #{pi_etc1},
+			pi_etc2 = #{pi_etc2},
+			pi_etc3 = #{pi_etc3},
+			use_yn= #{use_yn},
+			mod_date = now()
+			
+		where pi_seq = #{pi_seq}
+
+	</update>
+    
+    <delete id="ItemDelete" parameterType="int">
+
+		delete from j_production_items where pi_seq=#{pi_seq}
+
+	</delete>
+	
+	<select id="getItemCount" resultType="int" >
+        SELECT count(*)
+		FROM j_production_items A
+		WHERE del_yn='N'
+		<if test="pi_e_seq != null and pi_e_seq != '' ">
+		    AND pi_e_seq = #{pi_e_seq}
+		</if>
+		<if test="pi_group != null and pi_group != ''">
+		    AND pi_group = #{pi_group}
+		</if>
+		<if test="pi_group_temp != null and pi_group_temp != ''">
+		    AND pi_group_temp = #{pi_group_temp}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+		    AND use_yn = #{use_yn}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and  
+			pi_joil_number like CONCAT('%', #{search_word}, '%')
+		</if>
+		
+		<if test="pi_order_date != null and pi_order_date != '' ">
+			and date_format(pi_order_date,'%y') = #{pi_order_date}
+		</if>
+		
+	 </select>
+    
+</mapper>

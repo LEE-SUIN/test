@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ow">
+	
+	<select id="OutSideWorkList" resultType="com.company.test.vo.OutSideWorkVo">
+        SELECT 
+			A.*,
+			(select sc_name from j_system_code B where B.sc_seq = A.ow_sc_seq) as ow_sc_seq_name,
+			(select sc_name from j_system_code B where B.sc_seq = A.ow_group) as ow_group_name
+		FROM j_outside_worklist A 
+		WHERE del_yn='N'
+		<if test="ow_seq != null and ow_seq != '' ">
+		    AND A.ow_seq = #{ow_seq}
+		</if>
+		<if test="ow_group != null and ow_group != '' ">
+		    AND A.ow_group = #{ow_group}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and  
+			A.ow_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		order by A.ow_name asc 
+		limit ${pageNo} ,${pageSize}
+		
+	 </select>
+	 
+    <select id="OutSideWorkOne" resultType="com.company.test.vo.OutSideWorkVo">
+        SELECT *
+        FROM j_outside_worklist
+
+        WHERE ow_seq = #{ow_seq}
+    </select>
+    
+    <insert id="OutSideWorkInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="ow_seq">
+    	INSERT INTO j_outside_worklist
+(			
+			ow_sc_seq,
+			ow_no,
+			ow_name,
+			ow_pl_name,
+			ow_group,				
+			ow_etc1,
+			ow_etc2,
+			ow_etc3,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(    		
+			#{ow_sc_seq},
+			#{ow_no},
+			#{ow_name},
+			#{ow_pl_name},
+			#{ow_group},
+			#{ow_etc1},
+			#{ow_etc2},
+			#{ow_etc3},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    <update id="OutSideWorkUpdate" parameterType="java.util.HashMap" >
+
+		update j_outside_worklist
+		set
+			ow_sc_seq =  #{ow_sc_seq},
+			ow_no =  #{ow_no},
+			ow_name =  #{ow_name},
+			ow_pl_name =  #{ow_pl_name},
+			ow_group =  #{ow_group},
+			ow_etc1 =  #{ow_etc1},
+			ow_etc2 =  #{ow_etc2},
+			ow_etc3 =  #{ow_etc3},
+			mod_date = now()
+			
+		where ow_seq = #{ow_seq}
+
+	</update>
+    
+    <delete id="OutSideWorkDelete" parameterType="int">
+
+		delete from j_outside_worklist where ow_seq=#{ow_seq}
+
+	</delete>
+	
+	<select id="OutSideWorkCount" resultType="int" >
+        SELECT count(*)
+		FROM j_outside_worklist 
+		WHERE use_yn='Y'
+		<if test="ow_seq != null">
+		    AND ow_seq = #{ow_seq}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and  
+			ow_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		
+	 </select>
+    
+    
+    
+    
+    
+</mapper>

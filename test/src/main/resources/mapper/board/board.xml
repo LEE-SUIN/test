@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="bl">
+	    
+    <select id="BoardList" resultType="com.company.test.vo.BoardVo">
+        SELECT A.*      
+		FROM j_board_list A 
+		WHERE del_yn='N'
+		<if test="bl_seq != null and bl_seq != '' ">
+		    AND A.bl_seq = #{bl_seq}
+		</if>	
+		order by A.cre_date desc
+	 </select>
+	 
+    <select id="BoardOne" resultType="com.company.test.vo.BoardVo">
+        SELECT *
+        FROM j_board_list
+        WHERE bl_seq = #{bl_seq}
+    </select>
+    
+    <insert id="BoardInsert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="bl_seq" keyColumn="bl_seq">
+    	INSERT INTO j_board_list(
+		    bl_title,
+			bl_contents,
+			bl_etc,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(  
+			#{bl_title},
+			#{bl_contents},
+			#{bl_etc},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    	<selectKey keyProperty="bl_seq" resultType="long" order="AFTER" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+    </insert>
+    
+    <update id="BoardUpdate" parameterType="java.util.HashMap" >
+
+		update j_board_list
+		set
+			bl_title = #{bl_title},
+			bl_contents = #{bl_contents},
+			bl_etc = #{bl_etc},			
+			mod_date = now()
+		where bl_seq = #{bl_seq}
+
+	</update>
+    
+    <delete id="BoardDelete" parameterType="int">
+		delete from j_board_list where bl_seq=#{bl_seq}
+	</delete>
+	
+	<select id="getBoardCount" resultType="int" >
+        SELECT count(*)
+		FROM j_board_list A
+		WHERE del_yn='N'		
+	 </select>
+    
+    
+    
+    
+    
+  
+    
+    
+    
+    
+    
+</mapper>

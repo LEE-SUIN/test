@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="se">
+	
+    <select id="EnterpriseList" resultType="com.company.test.vo.EnterpriseVo">
+        SELECT *
+        FROM j_system_enterprise
+        WHERE del_yn='N'
+        <if test="se_seq != null and se_seq != '' ">
+		    AND se_seq = #{se_seq}
+		</if>
+		<if test="se_group != null and se_group != '' ">
+		    AND se_group = #{se_group}
+		</if>
+		order by se_name asc
+	 </select>
+	 
+    <select id="EnterpriseOne" resultType="com.company.test.vo.EnterpriseVo">
+        SELECT *
+        FROM j_system_enterprise
+        WHERE se_seq = #{se_seq}
+    </select>
+    
+    <insert id="EnterpriseInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="se_seq">
+    	INSERT INTO j_system_enterprise(			
+			se_name,
+			se_group,
+			se_code,
+			se_owner,
+			se_address,
+			se_conumber,
+			se_tel,
+			se_man,
+			se_mannumber,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(    		
+			#{se_name},
+			#{se_group},
+			#{se_code},
+			#{se_owner},
+			#{se_address},
+			#{se_conumber},
+			#{se_tel},
+			#{se_man},
+			#{se_mannumber},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+
+    	);
+    </insert>
+    
+    <update id="EnterpriseUpdate" parameterType="java.util.HashMap" >
+
+		update j_system_enterprise
+		set
+			se_name = #{se_name},
+			se_group = #{se_group},
+			se_code = #{se_code},
+			se_owner = #{se_owner},
+			se_address = #{se_address},
+			se_conumber = #{se_conumber},
+			se_tel = #{se_tel},
+			se_man = #{se_man},
+			se_mannumber = #{se_mannumber},
+			use_yn = #{use_yn},
+			mod_date = now()
+			
+			
+		where se_seq = #{se_seq}
+
+	</update>
+    
+    <delete id="EnterpriseDelete" parameterType="int">
+
+		delete from j_system_enterprise where se_seq=#{se_seq}
+
+	</delete>
+    
+</mapper>

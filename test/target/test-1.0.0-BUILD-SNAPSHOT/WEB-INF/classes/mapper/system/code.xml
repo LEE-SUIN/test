@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="sc">
+	
+
+    <select id="codeList" resultType="com.company.test.vo.CodeVo">
+        SELECT *
+        FROM j_system_code
+        WHERE sc_use_yn='Y'
+        <if test="sc_group_seq != null">
+		    AND sc_group_seq = #{sc_group_seq}
+		</if>
+		<if test="search_word != null and search_word != '' ">
+			and  
+			sc_group_name like CONCAT('%', #{search_word}, '%')
+				or sc_name like CONCAT('%', #{search_word}, '%')
+		</if>
+		<if test="sc_int_etc1 != null and sc_int_etc1 != ''">
+		    AND sc_int_etc1 = #{sc_int_etc1}
+		</if>
+		 <if test="sc_string_etc1 != null and sc_string_etc1 != ''">
+		    AND sc_string_etc1 = #{sc_string_etc1}
+		</if>
+		order by sc_group_seq desc 
+		limit ${pageNo} ,${pageSize}
+	 </select>
+	 
+	 	
+	  <select id="userJobList" resultType="com.company.test.vo.UserJobVo">
+        SELECT *
+        FROM j_system_job
+        WHERE sj_user_seq = #{sj_user_seq}
+       </select>
+        
+      <insert id="userJobInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="sj_seq">
+	    	INSERT INTO j_system_job(				
+				sj_user_seq
+				sj_group_seq
+				sj_sc_seq
+				sj_name				
+	    	) values(
+	    	#{sj_user_seq},
+			#{sj_group_seq},
+			#{sj_sc_seq},
+			#{sj_name}
+	    	);
+	    </insert>  
+        
+        
+        
+   
+    
+    <select id="codeOne" resultType="com.company.test.vo.CodeVo">
+        SELECT *
+        FROM j_system_code
+        WHERE sc_seq = #{sc_seq}
+    </select>
+    
+    <insert id="codeInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="sc_seq">
+    	INSERT INTO j_system_code(
+		sc_group_seq,
+		sc_group_name,
+		sc_name,
+		sc_int_etc1,
+		sc_string_etc1,
+		sc_use_yn
+    	) values(
+    	#{sc_group_seq},
+		#{sc_group_name},
+		#{sc_name},
+		#{sc_int_etc1},
+		#{sc_string_etc1},
+		#{sc_use_yn}
+    	);
+    </insert>
+    
+    <update id="codeUpdate" parameterType="java.util.HashMap" >
+
+		update j_system_code
+		set
+		sc_group_seq = #{sc_group_seq},
+		sc_group_name = #{sc_group_name},
+		sc_name = #{sc_name},
+		sc_int_etc1 = #{sc_int_etc1},
+		sc_string_etc1 = #{sc_string_etc1},
+		sc_use_yn = #{sc_use_yn}
+		where sc_seq = #{sc_seq}
+
+	</update>
+    
+    <delete id="codeDelete" parameterType="int">
+
+		delete from j_system_code where sc_seq=#{sc_seq}
+
+	</delete>
+	
+	<select id="getTotalCount" resultType="int">
+        SELECT count(*)
+        FROM j_system_code
+        where 1=1
+        <if test="search_word != null and search_word != '' ">
+			and  
+			sc_group_name like CONCAT('%', #{search_word}, '%')
+				or sc_name like CONCAT('%', #{search_word}, '%')
+		</if>
+    </select>
+	
+	
+    
+</mapper>

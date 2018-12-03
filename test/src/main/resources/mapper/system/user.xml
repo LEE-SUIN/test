@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="su">
+	
+	
+	
+	<select id="loginCheck" resultType="com.company.test.vo.UserVo" >
+        SELECT *
+        FROM j_system_user        
+        where su_id = #{su_id} and su_password = #{su_password}
+        
+        
+    </select>
+    
+    <select id="userOne" resultType="com.company.test.vo.UserVo" >
+        SELECT *
+        FROM j_system_user
+        where su_seq = #{su_seq}
+    </select>
+
+    <select id="userList" resultType="com.company.test.vo.UserVo">
+        SELECT A.*,
+		( select B.sc_name from j_system_code B where B.sc_seq = A.su_position)as su_position_name
+		,( select B.sc_name from j_system_code B where B.sc_seq = A.su_rank)as su_rank_name
+		FROM j_system_user A
+		where A.del_yn='N'
+		<if test="su_depart != null and su_depart != '' ">
+			and su_depart = #{su_depart}
+		</if>
+		<if test="use_yn != null and use_yn != '' ">
+			and use_yn = #{use_yn}
+		</if>
+		
+		order by A.su_name asc
+		
+    </select>
+    
+    <insert id="userInsert" parameterType="java.util.Map" useGeneratedKeys="true" keyProperty="su_seq" keyColumn="su_seq" >
+   
+    	INSERT INTO j_system_user(
+		su_name,
+		su_birth,
+		su_address,
+		su_tel,
+		su_mobile,
+		su_join_date,
+		su_leave_date,
+		su_file_name,
+		su_file_path,
+		su_file_rename,
+		su_file_ext,
+		su_depart,
+		su_position,
+		su_rank,
+		su_job,
+		su_id,
+		su_password,
+		su_menu_auth,
+		su_etc1,
+		su_etc2,
+		use_yn,
+		cre_date,
+		mod_date,
+		del_date,
+		del_yn
+    	) values(
+    	#{su_name},
+		#{su_birth},
+		#{su_address},
+		#{su_tel},
+		#{su_mobile},
+		#{su_join_date},
+		#{su_leave_date},
+		#{su_file_name},
+		#{su_file_path},
+		#{su_file_rename},
+		#{su_file_ext},
+		#{su_depart},
+		#{su_position},
+		#{su_rank},
+		#{su_job},
+		#{su_id},
+		#{su_password},
+		#{su_menu_auth},
+		#{su_etc1},
+		#{su_etc2},
+		'Y',
+		now(),
+		now(),
+		now(),
+		'N'
+    	);
+    	
+    	<selectKey keyProperty="su_seq" resultType="long" order="AFTER" >
+            SELECT LAST_INSERT_ID();
+        </selectKey>
+		
+
+    </insert>
+    
+    
+    <update id="userUpdate" parameterType="java.util.HashMap" >
+
+		update j_system_user
+		set
+		su_name			= #{su_name},	
+		su_birth		= #{su_birth},	
+		su_address		= #{su_address},	
+		su_tel			= #{su_tel},	
+		su_mobile		= #{su_mobile},	
+		su_join_date	= #{su_join_date},	
+		su_leave_date	= #{su_leave_date},	
+		
+		<if test="su_file_name != null">
+			su_file_name	= #{su_file_name},
+		</if>
+		<if test="su_file_path != null">
+			su_file_path	= #{su_file_path},
+		</if>
+		<if test="su_file_rename != null">
+			su_file_rename	= #{su_file_rename},
+		</if>
+		<if test="su_file_ext != null">
+			su_file_ext	= #{su_file_ext},
+		</if>
+		su_depart		= #{su_depart},
+		su_position		= #{su_position},	
+		su_rank			= #{su_rank},	
+		su_job			= #{su_job},	
+		su_id			= #{su_id},	
+		su_password		= #{su_password},	
+		su_menu_auth	= #{su_menu_auth},
+		su_etc1	= #{su_etc1},
+		su_etc2	= #{su_etc2},
+		mod_date		= now(),
+		use_yn = #{use_yn}
+		where su_seq = #{su_seq}
+
+	</update>
+    
+    
+    <update id="userPasswordUpdate" parameterType="java.util.HashMap" >
+
+		update j_system_user
+		set
+		su_password		= #{su_password},
+		mod_date		= now()
+		where su_id = #{su_id}
+
+	</update>
+    
+    
+    <delete id="userDelete" parameterType="int">
+
+		delete from j_system_user where su_seq=#{su_seq}
+
+	</delete>
+    
+    
+    <select id="userStats" resultType="com.company.test.vo.UserVo">
+        select 
+             A.pw_su_seq as pw_su_seq,
+			 
+ (select B.use_yn
+ from j_production_items B
+ where B.pi_seq=A.pw_pi_seq) as use_yn,
+        	 
+ (select B.pi_joil_number
+ from j_production_items B
+ where B.pi_seq=A.pw_pi_seq) as pi_joil_number,
+        	 
+ (select B.pi_name
+ from j_production_items B
+ where B.pi_seq=A.pw_pi_seq) as pi_name,
+        	 
+ (select B.sc_name
+ from j_system_code B
+ where B.sc_seq=A.pw_pi_job) as sc_name ,
+			 ( select sum(A.pw_pi_job_time)
+ from j_production_items C
+ where 
+ A.pw_pi_seq = C.pi_seq
+ and C.use_yn='Y' ) as pw_sum
+        	 
+		from j_production_work A
+		group by pw_pi_seq,pw_su_seq,pw_pi_job
+		
+    </select>
+    
+    
+</mapper>

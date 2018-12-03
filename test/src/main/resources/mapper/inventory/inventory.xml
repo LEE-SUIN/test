@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="il">
+	    
+    <select id="InventoryList" resultType="com.company.test.vo.InventoryVo">
+        select A.*
+		FROM j_inventory_list A 
+		WHERE del_yn='N'
+		<if test="il_seq != null and il_seq != '' ">
+		    AND A.il_seq = #{il_seq}
+		</if>	
+		<if test="tmp_search_word != null and tmp_search_word != '' ">
+			and A.il_item_name like CONCAT('%', #{tmp_search_word}, '%')
+		</if>				
+		<if test="tmp_search_date != null and tmp_search_date != ''">
+			<![CDATA[    
+				and DATE_FORMAT(A.il_reg_date, '%Y-%m-%d') = #{tmp_search_date}
+			 ]]>
+		</if>
+		
+		order by il_reg_date desc
+		
+	 </select>
+	 
+    
+    <insert id="InventoryInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="il_seq">
+    	INSERT INTO j_inventory_list(
+			il_reg_date,
+			il_co_name,
+			il_item_name,
+			il_unit,
+			il_standard,
+			il_reg_amount,
+			il_inventory_amount,
+			il_etc,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(  
+			#{il_reg_date},
+			#{il_co_name},
+			#{il_item_name},
+			#{il_unit},
+			#{il_standard},
+			#{il_reg_amount},
+			#{il_inventory_amount},
+			#{il_etc},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    
+    <insert id="InventoryDetailInsert" parameterType="java.util.HashMap" useGeneratedKeys="true" keyProperty="id_seq">
+    	INSERT INTO j_inventory_detail(
+			ide_gubun,
+			ide_il_seq,
+			ide_date,
+			ide_company,
+			ide_person,
+			ide_amount,
+			ide_etc,
+			use_yn,
+			cre_date,
+			mod_date,
+			del_date,
+			del_yn
+    	) values(
+			#{ide_gubun},
+			#{ide_il_seq},
+			#{ide_date},
+			#{ide_company},
+			#{ide_person},
+			#{ide_amount},
+			#{ide_etc},
+			'Y',
+			now(),
+			now(),
+			now(),
+			'N'
+    	);
+    </insert>
+    
+    
+    <update id="InventoryUpdate" parameterType="java.util.HashMap" >
+
+		update j_inventory_list
+		set
+			
+			mod_date = now()
+		where il_seq = #{il_seq}
+
+	</update>
+    
+    <delete id="InventoryDelete" parameterType="int">
+
+		delete from j_inventory_list where il_seq=#{il_seq}
+
+	</delete>
+	
+	<delete id="InventoryDetailDelete" parameterType="int">
+
+		delete from j_inventory_detail where ide_il_seq=#{il_seq}
+
+	</delete>
+	
+	
+	<select id="InventoryDetailList" resultType="com.company.test.vo.InventoryVo">
+        select 
+		ide_gubun,ide_seq,ide_il_seq,ide_date,ide_company,ide_person,ide_etc
+		,
+		(case  
+		when ide_gubun = 1 then ide_amount 
+		else ide_amount * -1
+		end) as ide_amount
+		from j_inventory_detail
+		where 1=1 
+		<if test="ide_il_seq != null and ide_il_seq != '' ">
+		    AND ide_il_seq = #{ide_il_seq}
+		</if>
+		
+		order by ide_date desc
+		
+	 </select>
+	
+	<select id="getInventoryCount" resultType="int" >
+	
+        SELECT count(*)
+		FROM j_inventory_list A
+		WHERE del_yn='N'		
+	
+	 </select>
+    
+    
+    
+</mapper>
